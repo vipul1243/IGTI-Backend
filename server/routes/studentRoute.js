@@ -2,7 +2,7 @@ const express = require("express");
 const Student = require("../models/studentModel");
 const EnrollNumber = require("../models/extraCourseModel");
 const {
-    registerStudentByEmail,
+  registerStudentByEmail,
   loginStudent,
   getStudent,
   registerStudentById,
@@ -42,12 +42,10 @@ const multerFilter = (req, file, cb) => {
   }
 };
 
-
 const upload = multer({
   storage: multerStorage,
   fileFilter: multerFilter,
 });
-
 
 // STUDENT-REGISTRATION
 // router.route("/register").post(registerStudent);
@@ -61,7 +59,9 @@ router.post("/register", upload.single("fileName"), async (req, res) => {
       });
     }
 
-    const studentExists2 = await Student.findOne({ mobileNumber: req.body.mobileNumber });
+    const studentExists2 = await Student.findOne({
+      mobileNumber: req.body.mobileNumber,
+    });
     if (studentExists2) {
       return res.send({
         success: false,
@@ -69,15 +69,13 @@ router.post("/register", upload.single("fileName"), async (req, res) => {
       });
     }
 
-    // console.log(req.file);
-
-    if(req.file === undefined) {
+    if (req.file === undefined) {
       return res.send({
         success: false,
         message: "Please select image File",
       });
     }
-    
+
     req.body.imageFile = req.file.filename;
 
     const course = await EnrollNumber.findOne();
@@ -94,6 +92,42 @@ router.post("/register", upload.single("fileName"), async (req, res) => {
     return res.send({
       success: true,
       message: "Student registered Successfully",
+    });
+  } catch (error) {
+    return res.send({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
+router.post("/update/:id", upload.single("fileName"), async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const student = await Student.findOne({ _id: id });
+
+    if (req.file !== undefined) {
+      const filePath = path.join(__dirname, "../../public", student.imageFile);
+      await fs.unlink(filePath);
+      req.body.imageFile = req.file.filename;
+    } else {
+      req.body.imageFile = student.imageFile;
+    }
+
+    const updatedStudent = await Student.findByIdAndUpdate(
+      id,
+      { $set: req.body },
+      { new: true }
+    );
+
+    if (!updatedStudent) {
+      return res.send({ success: false, message: "Student not found" });
+    }
+
+    return res.send({
+      success: true,
+      message: "Student Updated Successfully",
     });
   } catch (error) {
     return res.send({
@@ -128,7 +162,5 @@ router.route("/verify-student").post(verifyEnrollNumber);
 router.route("/delete-student-by-id/:id").delete(deleteStudent);
 
 router.route("/change-status").post(changeEnroll);
-
-
 
 module.exports = router;
