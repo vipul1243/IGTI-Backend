@@ -9,6 +9,7 @@ const courseRoute = require("./routes/courseRoute");
 const subjectRoute = require("./routes/subjectRoute");
 const examSetRoute = require("./routes/examSetRoute");
 const resultSetRoute = require("./routes/resultSetRoute");
+const notificationRoute = require("./routes/notificationRoute");
 const app = express();
 
 // Allow cross-origin-policy
@@ -40,6 +41,7 @@ app.use("/api/courses", courseRoute);
 app.use("/api/subjects", subjectRoute);
 app.use("/api/examSets", examSetRoute);
 app.use("/api/resultSets", resultSetRoute);
+app.use("/api/notification", notificationRoute);
 
 const dirname = path.resolve();
 app.use('/public', express.static(path.join(dirname, '/public')))
