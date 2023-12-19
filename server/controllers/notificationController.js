@@ -24,6 +24,7 @@ exports.addNotification = async (req, res) => {
 
 exports.getNotification = async (req, res) => {
   try {
+    
     const notifications = await Notification.find(
       {},
       "_id notification youtubeLink"
